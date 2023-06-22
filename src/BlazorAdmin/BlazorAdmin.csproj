@@ -2,12 +2,22 @@
 	<ItemGroup>
 		<PackageReference Include="Blazored.LocalStorage" />
 		<PackageReference Include="BlazorInputFile" />
+		<PackageReference Include="Elastic.Apm" />
+		<PackageReference Include="Elastic.Apm.SerilogEnricher" />
+		<PackageReference Include="Elastic.CommonSchema.Serilog" />
 		<PackageReference Include="Microsoft.AspNetCore.Components.Authorization" />
 		<PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly" />
 		<PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.Authentication" />		
 		<PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.DevServer" />
 		<PackageReference Include="Microsoft.Extensions.Identity.Core" />
 		<PackageReference Include="Microsoft.Extensions.Logging.Configuration" />
+		<PackageReference Include="Serilog" />
+		<PackageReference Include="Serilog.Exceptions" />
+		<PackageReference Include="Serilog.Settings.Configuration" />
+		<PackageReference Include="Serilog.Sinks.Console" />
+		<PackageReference Include="Serilog.Sinks.Debug" />
+		<PackageReference Include="Serilog.Sinks.Elasticsearch" />
+		<PackageReference Include="Serilog.Sinks.File" />
 		<PackageReference Include="System.Net.Http.Json" />
 	</ItemGroup>
 

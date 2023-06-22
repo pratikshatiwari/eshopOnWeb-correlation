@@ -1,4 +1,6 @@
 ﻿using Ardalis.GuardClauses;
+using Elastic.Apm;
+using Elastic.Apm.Api;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.eShopWeb.ApplicationCore.Entities;
@@ -14,6 +16,7 @@ public class IndexModel : PageModel
     private readonly IBasketViewModelService _basketViewModelService;
     private readonly IRepository<CatalogItem> _itemRepository;
 
+
     public IndexModel(IBasketService basketService,
         IBasketViewModelService basketViewModelService,
         IRepository<CatalogItem> itemRepository)
@@ -25,31 +28,53 @@ public class IndexModel : PageModel
 
     public BasketViewModel BasketModel { get; set; } = new BasketViewModel();
 
+
     public async Task OnGet()
     {
-        BasketModel = await _basketViewModelService.GetOrCreateBasketForUser(GetOrSetBasketCookieAndUserName());
+        //var GetBasket = Elastic.Apm.Agent.Tracer.CurrentTransaction;
+
+       // var GetBasket = Elastic.Apm.Agent.Tracer.CurrentSpan;
+        //await GetBasket.CaptureSpan("Get Basket for User", ApiConstants.ActionExec, async () => { });
+
+        //ITransaction GetBasket = Elastic.Apm.Agent.Tracer.CurrentTransaction;
+        var GetBasket = Elastic.Apm.Agent.Tracer.CurrentTransaction;
+        var asyncResult = await GetBasket.CaptureSpan("Get Basket for User", ApiConstants.ActionQuery, async (s) =>
+        {
+
+            BasketModel = await _basketViewModelService.GetOrCreateBasketForUser(GetOrSetBasketCookieAndUserName());
+            //await Task.Delay(500); //sample async code
+            return GetBasket;
+        });
     }
 
     public async Task<IActionResult> OnPost(CatalogItemViewModel productDetails)
     {
-        if (productDetails?.Id == null)
+
+        var PostBasket = Elastic.Apm.Agent.Tracer.CurrentTransaction;
+
+            if (productDetails?.Id == null)
         {
             return RedirectToPage("/Index");
         }
+
+        //var asyncResult = await PostBasket.CaptureSpan("Get Basket for User", ApiConstants.ActionQuery, async (s) => { });
 
         var item = await _itemRepository.GetByIdAsync(productDetails.Id);
-        if (item == null)
-        {
-            return RedirectToPage("/Index");
-        }
+            if (item == null)
+            {
+                return RedirectToPage("/Index");
+            }
 
+       
+        await PostBasket.CaptureSpan("Add Items for User", ApiConstants.ActionQuery, async (s) => {
         var username = GetOrSetBasketCookieAndUserName();
         var basket = await _basketService.AddItemToBasket(username,
             productDetails.Id, item.Price);
 
         BasketModel = await _basketViewModelService.Map(basket);
-
+        });
         return RedirectToPage();
+
     }
 
     public async Task OnPostUpdate(IEnumerable<BasketItemViewModel> items)

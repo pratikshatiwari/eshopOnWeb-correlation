@@ -1,4 +1,8 @@
-﻿using Microsoft.AspNetCore.Mvc.RazorPages;
+﻿using System;
+using System.Transactions;
+using Elastic.Apm;
+using Elastic.Apm.Api;
+using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.eShopWeb.Web.Services;
 using Microsoft.eShopWeb.Web.ViewModels;
 
@@ -17,6 +21,18 @@ public class IndexModel : PageModel
 
     public async Task OnGet(CatalogIndexViewModel catalogModel, int? pageId)
     {
-        CatalogModel = await _catalogViewModelService.GetCatalogItems(pageId ?? 0, Constants.ITEMS_PER_PAGE, catalogModel.BrandFilterApplied, catalogModel.TypesFilterApplied);
+        // transaction 1
+        ITransaction catalogitems = Elastic.Apm.Agent.Tracer.CurrentTransaction;
+
+        await catalogitems.CaptureSpan("Get CatalogItems", ApiConstants.ActionExec, async () =>
+       // ITransaction span = Transaction.CaptureSpan("Select FROM customer", ApiConstants.TypeDb, ApiConstants.SubtypeMssql, ApiConstants.ActionQuery
+        {
+            CatalogModel = await _catalogViewModelService.GetCatalogItems(pageId ?? 0, Constants.ITEMS_PER_PAGE, catalogModel.BrandFilterApplied, catalogModel.TypesFilterApplied);
+            
+          //  span.End();
+
+        });
+
     }
+
 }

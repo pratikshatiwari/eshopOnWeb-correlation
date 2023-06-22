@@ -7,6 +7,7 @@
 
   <ItemGroup>
     <PackageReference Include="BlazorInputFile" />
+    <PackageReference Include="Elastic.Apm" />
     <PackageReference Include="FluentValidation" />
   </ItemGroup>
 

@@ -61,11 +61,11 @@ public class CatalogContextSeed
     {
         return new List<CatalogBrand>
             {
-                new("Azure"),
-                new(".NET"),
-                new("Visual Studio"),
-                new("SQL Server"),
-                new("Other")
+                new("Helloe"),
+                new("BOSS"),
+                new("Marc Jacob"),
+                new("Sait L"),
+                new("D&G")
             };
     }
 

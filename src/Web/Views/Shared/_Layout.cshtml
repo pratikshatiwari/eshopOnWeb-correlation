@@ -72,14 +72,14 @@
     <script>
         elasticApm.init({
             serviceName: 'clothing-rum',
-            serverUrl: 'https://34.132.191.86:8200',
+            serverUrl: 'https://34.173.47.87:8200',
             "ServerCert": "~/lib/cert/ca.crt",
             "VerifyServerCert": "true",
             "Environment": "ecommerce",
-            distributedTracingOrigins: ['https://localhost:44315'],
+            //distributedTracingOrigins: ['https://localhost:44315'],
             //var transaction = agent.Tracer.StartTransaction("Transaction1", "sample");
             //transaction.SetService("clothing", "1.0-beta1");
-            pageLoadTraceId: '@Elastic.Apm.Agent.Tracer.CurrentTransaction?.TraceId',
+            pageLoadTraceId: '@Elastic.Apm.Agent.Tracer.CurrentTransaction?.TraceId.',
             pageLoadSpanId: '@Elastic.Apm.Agent.Tracer.CurrentTransaction?.EnsureParentId()',
             pageLoadSampled: @Json.Serialize(Elastic.Apm.Agent.Tracer?.CurrentTransaction.IsSampled),
         });

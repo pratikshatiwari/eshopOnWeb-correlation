@@ -1,7 +1,9 @@
-﻿using Microsoft.eShopWeb.ApplicationCore.Entities.BasketAggregate;
+﻿using Elastic.Apm.Api;
+using Microsoft.eShopWeb.ApplicationCore.Entities.BasketAggregate;
 using Microsoft.eShopWeb.Web.Pages.Basket;
 
 namespace Microsoft.eShopWeb.Web.Interfaces;
+
 
 public interface IBasketViewModelService
 {

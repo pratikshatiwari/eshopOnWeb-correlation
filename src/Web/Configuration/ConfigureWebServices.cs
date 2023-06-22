@@ -1,4 +1,5 @@
-﻿using MediatR;
+﻿using Elastic.Apm.Api;
+using MediatR;
 using Microsoft.eShopWeb.Web.Interfaces;
 using Microsoft.eShopWeb.Web.Services;
 using Microsoft.Extensions.Configuration;

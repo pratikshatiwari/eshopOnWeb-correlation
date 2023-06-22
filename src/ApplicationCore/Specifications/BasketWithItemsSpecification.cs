@@ -1,4 +1,5 @@
 ﻿using Ardalis.Specification;
+using Elastic.Apm.Api;
 using Microsoft.eShopWeb.ApplicationCore.Entities.BasketAggregate;
 
 namespace Microsoft.eShopWeb.ApplicationCore.Specifications;

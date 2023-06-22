@@ -31,6 +31,9 @@ using Serilog;
 using System.Reflection;
 using Elastic.Apm.SerilogEnricher;
 using Serilog.Exceptions;
+using Elastic.Apm.Api;
+using Elastic.Apm;
+using Elastic.CommonSchema.Serilog;
 
 IConfiguration GetConfiguration()
 {
@@ -233,10 +236,12 @@ void ConfigureLogging()
 
     Log.Logger = new LoggerConfiguration()
         .Enrich.FromLogContext()
+        .Enrich.WithProperty("service.name", "clothing-admin")
         .Enrich.WithElasticApmCorrelationInfo()
         .Enrich.WithExceptionDetails()
         .WriteTo.Debug()
         .WriteTo.Console()
+        .WriteTo.File(new EcsTextFormatter(), "D:\\log\\admin_1txt")
         .WriteTo.Elasticsearch(ConfigureElasticSink(configuration, environment))
         .Enrich.WithProperty("Environment", environment)
         .ReadFrom.Configuration(configuration)
@@ -248,7 +253,8 @@ ElasticsearchSinkOptions ConfigureElasticSink(IConfigurationRoot configuration, 
     return new ElasticsearchSinkOptions(new Uri(configuration["ElasticConfiguration:Uri"]))
     {
         AutoRegisterTemplate = true,
-        IndexFormat = $"{Assembly.GetExecutingAssembly().GetName().Name.ToLower().Replace("log", "-")}-{environment?.ToLower().Replace("log", "-")}-{DateTime.UtcNow:yyyy-MM}"
+        IndexFormat = $"{Assembly.GetExecutingAssembly().GetName().Name.ToLower().Replace("log", "-")}-{environment?.ToLower().Replace("log", "-")}-{DateTime.UtcNow:yyyy-MM}",
+        InlineFields = true
     };
 
 }

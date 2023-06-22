@@ -16,8 +16,11 @@
     <PackageReference Include="Ardalis.ListStartupServices" />
     <PackageReference Include="Ardalis.Specification" />
     <PackageReference Include="AutoMapper.Extensions.Microsoft.DependencyInjection" />
+    <PackageReference Include="Elastic.Apm.AspNetCore" />
+    <PackageReference Include="Elastic.Apm.EntityFrameworkCore" />
     <PackageReference Include="Elastic.Apm.NetCoreAll" />
     <PackageReference Include="Elastic.Apm.SerilogEnricher" />
+    <PackageReference Include="Elastic.CommonSchema.Serilog" />
     <PackageReference Include="MediatR" />
     <PackageReference Include="MediatR.Extensions.Microsoft.DependencyInjection" />
     <PackageReference Include="BuildBundlerMinifier" Condition="'$(Configuration)'=='Release'" />

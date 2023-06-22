@@ -1,4 +1,5 @@
-﻿using Microsoft.eShopWeb.ApplicationCore.Entities;
+﻿using Elastic.Apm.Api;
+using Microsoft.eShopWeb.ApplicationCore.Entities;
 using Microsoft.eShopWeb.ApplicationCore.Entities.BasketAggregate;
 using Microsoft.eShopWeb.ApplicationCore.Interfaces;
 using Microsoft.eShopWeb.ApplicationCore.Specifications;
@@ -19,27 +20,38 @@ public class BasketViewModelService : IBasketViewModelService
         IUriComposer uriComposer,
         IBasketQueryService basketQueryService)
     {
-        _basketRepository = basketRepository;
-        _uriComposer = uriComposer;
-        _basketQueryService = basketQueryService;
-        _itemRepository = itemRepository;
+        this._basketRepository = basketRepository;
+        this._uriComposer = uriComposer;
+        this._basketQueryService = basketQueryService;
+        this._itemRepository = itemRepository;
     }
 
     public async Task<BasketViewModel> GetOrCreateBasketForUser(string userName)
     {
-        var basketSpec = new BasketWithItemsSpecification(userName);
-        var basket = (await _basketRepository.FirstOrDefaultAsync(basketSpec));
+        ITransaction GetBasket = Elastic.Apm.Agent.Tracer.CurrentTransaction;
+        //await GetBasket.CaptureSpan("Get Basket", ApiConstants.ActionQuery);
+        var model = await GetBasket.CaptureSpan("Get BasketWithItemsSpecification", ApiConstants.ActionExec, async () => { 
+            var basketSpec = new BasketWithItemsSpecification(userName);
+            var basket = (await _basketRepository.FirstOrDefaultAsync(basketSpec));
+            
+            if (basket == null)
+            {
+                return await CreateBasketForUser(userName);
+            }
 
-        if (basket == null)
-        {
-            return await CreateBasketForUser(userName);
-        }
-        var viewModel = await Map(basket);
-        return viewModel;
+            var viewModel = await Map(basket);
+            return viewModel;
+        });
+        return model;
     }
+
+    
 
     private async Task<BasketViewModel> CreateBasketForUser(string userId)
     {
+
+
+
         var basket = new Basket(userId);
         await _basketRepository.AddAsync(basket);
 
@@ -52,6 +64,11 @@ public class BasketViewModelService : IBasketViewModelService
 
     private async Task<List<BasketItemViewModel>> GetBasketItems(IReadOnlyCollection<BasketItem> basketItems)
     {
+
+        //span1
+        //ITransaction trans1 = Elastic.Apm.Agent.Tracer.CurrentTransaction;
+        //await trans1.CaptureSpan("Get BasketItems", ApiConstants.ActionExec, async () => await Task.Delay(30));
+
         var catalogItemsSpecification = new CatalogItemsSpecification(basketItems.Select(b => b.CatalogItemId).ToArray());
         var catalogItems = await _itemRepository.ListAsync(catalogItemsSpecification);
 
@@ -70,6 +87,8 @@ public class BasketViewModelService : IBasketViewModelService
             };
             return basketItemViewModel;
         }).ToList();
+
+        //trans1.End();
 
         return items;
     }

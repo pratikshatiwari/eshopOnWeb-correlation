@@ -2,6 +2,7 @@
 using System.Threading.Tasks;
 using Ardalis.GuardClauses;
 using Ardalis.Result;
+using Elastic.Apm.Api;
 using Microsoft.eShopWeb.ApplicationCore.Entities.BasketAggregate;
 using Microsoft.eShopWeb.ApplicationCore.Interfaces;
 using Microsoft.eShopWeb.ApplicationCore.Specifications;
@@ -12,6 +13,7 @@ public class BasketService : IBasketService
 {
     private readonly IRepository<Basket> _basketRepository;
     private readonly IAppLogger<BasketService> _logger;
+    private ITransaction transaction;
 
     public BasketService(IRepository<Basket> basketRepository,
         IAppLogger<BasketService> logger)
@@ -46,7 +48,13 @@ public class BasketService : IBasketService
 
     public async Task<Result<Basket>> SetQuantities(int basketId, Dictionary<string, int> quantities)
     {
+        //ITransaction checkout_post1 = Elastic.Apm.Agent.Tracer.CurrentTransaction;
+        //await checkout_post1.CaptureSpan("basket specification with Basket ID ", ApiConstants.ActionExec, async () => await Task.Delay(1));
+
         var basketSpec = new BasketWithItemsSpecification(basketId);
+
+        //await checkout_post1.CaptureSpan("basket repository", ApiConstants.TypeRequest, async () => { });
+
         var basket = await _basketRepository.FirstOrDefaultAsync(basketSpec);
         if (basket == null) return Result<Basket>.NotFound();
 

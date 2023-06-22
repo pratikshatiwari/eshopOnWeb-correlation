@@ -2,6 +2,7 @@
 using System.Threading;
 using System.Threading.Tasks;
 using Ardalis.Specification;
+using Elastic.Apm.Api;
 using Microsoft.eShopWeb.ApplicationCore.Entities.OrderAggregate;
 using Microsoft.eShopWeb.ApplicationCore.Interfaces;
 using Microsoft.eShopWeb.Web.Features.MyOrders;
@@ -27,7 +28,10 @@ public class GetMyOrders
     [Fact]
     public async Task NotReturnNullIfOrdersArePresIent()
     {
-        var request = new eShopWeb.Web.Features.MyOrders.GetMyOrders("SomeUserName");
+        ITransaction trans1 = Elastic.Apm.Agent.Tracer.CurrentTransaction;
+        await trans1.CaptureSpan("step 1 test processing", ApiConstants.ActionExec, async () => await Task.Delay(30));
+
+        var request = new eShopWeb.Web.Features.MyOrders.GetMyOrders("SomeUserName", trans1);
 
         var handler = new GetMyOrdersHandler(_mockOrderRepository.Object);
 

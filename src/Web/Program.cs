@@ -9,6 +9,7 @@ using Elastic.Apm.NetCoreAll;
 using Elastic.Apm.SerilogEnricher;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc.ApplicationModels;
 using Microsoft.eShopWeb;
@@ -22,11 +23,28 @@ using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Serilog;
 using Serilog.Exceptions;
 using Serilog.Sinks.Elasticsearch;
+using Elastic.Apm;
+using Elastic.Apm.Api;
+using Elastic.Apm.DiagnosticSource;
+using Elastic.Apm.EntityFrameworkCore;
+using Elastic.Apm.AspNetCore;
+using System.Configuration;
+using Microsoft.Extensions.Configuration;
+using Elastic.CommonSchema.Serilog;
+using Serilog.Events;
+using System.Transactions;
+using System.Diagnostics;
 
 var builder = WebApplication.CreateBuilder(args);
 
+var Configuration = builder.Configuration;
+
 ConfigureLogging();
 builder.Host.UseSerilog();
+
+
+
+
 
 
 builder.Logging.AddConsole();
@@ -104,24 +122,46 @@ builder.Services.AddBlazorServices();
 
 builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 
+
 var app = builder.Build();
 
 
 
-var configuration = GetConfiguration();
-app.UseAllElasticApm(configuration);
+
+//app.UseAllElasticApm(Configuration);
+
+
+
+//var Configuration = GetConfiguration();
+//app.UseAllElasticApm(Configuration);
+
+//app.UseElasticApm(Configuration,
+//    new HttpDiagnosticsSubscriber(),  /* Enable tracing of outgoing HTTP requests */
+//    new EfCoreDiagnosticsSubscriber()); /* Enable tracing of database calls through EF Core*/
+
+//app.UseAllElasticApm(Configuration);
 
 
 app.Logger.LogInformation("App created...");
 
 app.Logger.LogInformation("Seeding Database...");
 
+app.UseAllElasticApm(Configuration);
+
+
+// transaction 1
+var trans1 = Agent.Tracer.StartTransaction("Dist Trans 1", ApiConstants.TypeRequest);
+await trans1.CaptureSpan("step 1 processing", ApiConstants.ActionExec, async () => await Task.Delay(30));
+
 using (var scope = app.Services.CreateScope())
 {
     var scopedProvider = scope.ServiceProvider;
+    //var trans1 = Agent.Tracer.StartTransaction("Dist Trans 1", ApiConstants.TypeRequest);
+
     try
     {
         var catalogContext = scopedProvider.GetRequiredService<CatalogContext>();
+        //await trans1.CaptureSpan("step 1 processing", ApiConstants.ActionExec, async () => await Task.Delay(30));
         await CatalogContextSeed.SeedAsync(catalogContext, app.Logger);
 
         var userManager = scopedProvider.GetRequiredService<UserManager<ApplicationUser>>();
@@ -133,50 +173,76 @@ using (var scope = app.Services.CreateScope())
     {
         app.Logger.LogError(ex, "An error occurred seeding the DB.");
     }
+    trans1.End();
 }
 
-var catalogBaseUrl = builder.Configuration.GetValue(typeof(string), "CatalogBaseUrl") as string;
-if (!string.IsNullOrEmpty(catalogBaseUrl))
+
+
+// transaction 2
+
+var trans2 = Agent.Tracer.StartTransaction("Dist Trans 2", ApiConstants.TypeRequest,
+    DistributedTracingData.TryDeserializeFromString(trans1.OutgoingDistributedTracingData.SerializeToString()));
+
+//await trans2.CaptureSpan("step 2 processing", ApiConstants.ActionExec, async () => await Task.Delay(30));
+
+await trans2.CaptureSpan("step 2 processing", ApiConstants.ActionExec, async () =>
 {
-    app.Use((context, next) =>
-    {
-        context.Request.PathBase = new PathString(catalogBaseUrl);
-        return next();
-    });
-}
 
-app.UseHealthChecks("/health",
-    new HealthCheckOptions
+    var catalogBaseUrl = builder.Configuration.GetValue(typeof(string), "CatalogBaseUrl") as string;
+
+    if (!string.IsNullOrEmpty(catalogBaseUrl))
+
     {
-        ResponseWriter = async (context, report) =>
+
+        app.Use((context, next) =>
         {
-            var result = new
+
+            context.Request.PathBase = new PathString(catalogBaseUrl);
+
+            return next();
+        });
+    }
+
+    app.UseHealthChecks("/health",
+        new HealthCheckOptions
+        {
+            ResponseWriter = async (context, report) =>
             {
-                status = report.Status.ToString(),
-                errors = report.Entries.Select(e => new
+                var result = new
                 {
-                    key = e.Key,
-                    value = Enum.GetName(typeof(HealthStatus), e.Value.Status)
-                })
-            }.ToJson();
-            context.Response.ContentType = MediaTypeNames.Application.Json;
-            await context.Response.WriteAsync(result);
-        }
-    });
-if (app.Environment.IsDevelopment() || app.Environment.EnvironmentName == "Docker")
-{
-    app.Logger.LogInformation("Adding Development middleware...");
-    app.UseDeveloperExceptionPage();
-    app.UseShowAllServicesMiddleware();
-    app.UseMigrationsEndPoint();
-    app.UseWebAssemblyDebugging();
-}
-else
-{
-    app.Logger.LogInformation("Adding non-Development middleware...");
-    app.UseExceptionHandler("/Error");
-    app.UseHsts();
-}
+                    status = report.Status.ToString(),
+                    errors = report.Entries.Select(e => new
+                    {
+                        key = e.Key,
+                        value = Enum.GetName(typeof(HealthStatus), e.Value.Status)
+                    })
+                }.ToJson();
+                context.Response.ContentType = MediaTypeNames.Application.Json;
+                await context.Response.WriteAsync(result);
+            }
+        });
+    if (app.Environment.IsDevelopment() || app.Environment.EnvironmentName == "Docker")
+    {
+        app.Logger.LogInformation("Adding Development middleware...");
+        app.UseDeveloperExceptionPage();
+        app.UseShowAllServicesMiddleware();
+        app.UseMigrationsEndPoint();
+        app.UseWebAssemblyDebugging();
+    }
+    else
+    {
+        app.Logger.LogInformation("Adding non-Development middleware...");
+        app.UseExceptionHandler("/Error");
+        app.UseHsts();
+
+    }
+
+});
+trans2.End();
+
+
+
+
 
 app.UseHttpsRedirection();
 app.UseBlazorFrameworkFiles();
@@ -197,19 +263,14 @@ app.UseEndpoints(endpoints =>
     endpoints.MapFallbackToFile("index.html");
 });
 
+
+
 app.Logger.LogInformation("LAUNCHING");
+
+
+
 app.Run();
 
-
-IConfiguration GetConfiguration()
-{
-    var builder = new ConfigurationBuilder()
-        .SetBasePath(Directory.GetCurrentDirectory())
-        .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
-        .AddEnvironmentVariables();
-
-    return builder.Build();
-}
 
 
 void ConfigureLogging()
@@ -220,26 +281,37 @@ void ConfigureLogging()
         .AddJsonFile(
             $"appsettings.{Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT")}.json",
             optional: true)
+
         .Build();
+
+
+
 
     Log.Logger = new LoggerConfiguration()
         .Enrich.FromLogContext()
+        .Enrich.WithProperty("service.name", "clothing")
         .Enrich.WithElasticApmCorrelationInfo()
         .Enrich.WithExceptionDetails()
         .WriteTo.Debug()
         .WriteTo.Console()
+        .WriteTo.Console(outputTemplate: "[{ElasticApmTraceId} {ElasticApmTransactionId} {Message:lj} {NewLine}{Exception}")
+        //.WriteTo.Console(outputTemplate: "[{TraceId} {TransactionId} {Message:lj} {NewLine}{Exception}")
         .WriteTo.Elasticsearch(ConfigureElasticSink(configuration, environment))
+        .WriteTo.File(new EcsTextFormatter(), "D:\\log\\blazoradmin.txt")
         .Enrich.WithProperty("Environment", environment)
         .ReadFrom.Configuration(configuration)
         .CreateLogger();
 }
+
+
 
 ElasticsearchSinkOptions ConfigureElasticSink(IConfigurationRoot configuration, string environment)
 {
     return new ElasticsearchSinkOptions(new Uri(configuration["ElasticConfiguration:Uri"]))
     {
         AutoRegisterTemplate = true,
-        IndexFormat = $"{Assembly.GetExecutingAssembly().GetName().Name.ToLower().Replace("log", "-")}-{environment?.ToLower().Replace("log", "-")}-{DateTime.UtcNow:yyyy-MM}"
+        IndexFormat = $"{Assembly.GetExecutingAssembly().GetName().Name.ToLower().Replace("log", "-")}-{environment?.ToLower().Replace("log", "-")}-{DateTime.UtcNow:yyyy-MM}",
+        InlineFields = true
     };
 
 }

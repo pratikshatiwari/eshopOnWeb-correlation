@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Blazored.LocalStorage;
 using BlazorShared.Interfaces;
 using BlazorShared.Models;
+using Elastic.Apm.Api;
 using Microsoft.Extensions.Logging;
 
 namespace BlazorAdmin.Services;

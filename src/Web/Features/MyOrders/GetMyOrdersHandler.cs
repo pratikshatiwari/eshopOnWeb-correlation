@@ -2,6 +2,7 @@
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Elastic.Apm.Api;
 using MediatR;
 using Microsoft.eShopWeb.ApplicationCore.Entities.OrderAggregate;
 using Microsoft.eShopWeb.ApplicationCore.Interfaces;
@@ -22,8 +23,15 @@ public class GetMyOrdersHandler : IRequestHandler<GetMyOrders, IEnumerable<Order
     public async Task<IEnumerable<OrderViewModel>> Handle(GetMyOrders request,
         CancellationToken cancellationToken)
     {
+        //transaction1
+        //span2
+        //request.Transaction.CaptureSpan("Hnadling Order");
+        await request.Transaction.CaptureSpan("step 2 processing", ApiConstants.ActionExec, async () => await Task.Delay(30));
+
         var specification = new CustomerOrdersWithItemsSpecification(request.UserName);
+ 
         var orders = await _orderRepository.ListAsync(specification, cancellationToken);
+        await request.Transaction.CaptureSpan("step 3 Repository processing", ApiConstants.ActionExec, async () => await Task.Delay(30));
 
         return orders.Select(o => new OrderViewModel
         {

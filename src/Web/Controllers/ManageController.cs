@@ -1,6 +1,7 @@
 ﻿using System.Text;
 using System.Text.Encodings.Web;
 using Ardalis.GuardClauses;
+using Elastic.Apm.Api;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
@@ -46,10 +47,11 @@ public class ManageController : Controller
     [HttpGet]
     public async Task<IActionResult> MyAccount()
     {
+
         var user = await _userManager.GetUserAsync(User);
         if (user == null)
         {
-            throw new ApplicationException($"Unable to load user with ID '{_userManager.GetUserId(User)}'.");
+            throw new ApplicationException($"Unable to load user with ID '{_userManager.GetUserId(User)}.");
         }
 
         var model = new IndexViewModel

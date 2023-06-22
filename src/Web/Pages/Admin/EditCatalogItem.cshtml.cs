@@ -1,4 +1,6 @@
 ﻿using System.Threading.Tasks;
+using Elastic.Apm;
+using Elastic.Apm.Api;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
@@ -28,11 +30,17 @@ public class EditCatalogItemModel : PageModel
 
     public async Task<IActionResult> OnPostAsync()
     {
+        var trans1 = Agent.Tracer.StartTransaction("Dist Trans 2", ApiConstants.TypeRequest);
+
+        await trans1.CaptureSpan("step 1 processing", ApiConstants.ActionExec, async () => { 
+
+
         if (ModelState.IsValid)
         {
             await _catalogItemViewModelService.UpdateCatalogItem(CatalogModel);
         }
 
+        });
         return RedirectToPage("/Admin/Index");
     }
 }

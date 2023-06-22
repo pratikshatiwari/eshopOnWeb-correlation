@@ -1,4 +1,6 @@
 ﻿using Ardalis.GuardClauses;
+using Elastic.Apm;
+using Elastic.Apm.Api;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -43,32 +45,74 @@ public class CheckoutModel : PageModel
 
     public async Task<IActionResult> OnPost(IEnumerable<BasketItemViewModel> items)
     {
+
+        //span1
+        ITransaction checkout_post1 = Elastic.Apm.Agent.Tracer.CurrentTransaction;
+        //await checkout_post1.CaptureSpan("Checkout#Post", ApiConstants.ActionExec, async () => { });
+
         try
         {
-            await SetBasketModelAsync();
+            await checkout_post1.CaptureSpan("Set basket model", ApiConstants.SubtypeHttp, async () =>
+            {
+                await SetBasketModelAsync();
+            });
 
+
+            //await checkout_post1.CaptureSpan("ModelState", ApiConstants.ActionExec, async () => { });
             if (!ModelState.IsValid)
             {
                 return BadRequest();
             }
 
-            var updateModel = items.ToDictionary(b => b.Id.ToString(), b => b.Quantity);
-            await _basketService.SetQuantities(BasketModel.Id, updateModel);
-            await _orderService.CreateOrderAsync(BasketModel.Id, new Address("123 Main St.", "Kent", "OH", "United States", "44240"));
-            await _basketService.DeleteBasketAsync(BasketModel.Id);
+            await checkout_post1.CaptureSpan("Add Order Quanitity", ApiConstants.ActionExec, async () =>
+            {
+                var updateModel = items.ToDictionary(b => b.Id.ToString(), b => b.Quantity);
+                //});
+
+                //await checkout_post1.CaptureSpan("Update Order quanity", ApiConstants.ActionExec, async () =>
+                //{
+                await _basketService.SetQuantities(BasketModel.Id, updateModel);
+            });
+
+            await checkout_post1.CaptureSpan("create order", ApiConstants.SubTypeInternal, async () => {
+                await _orderService.CreateOrderAsync(BasketModel.Id, new Address("123 Main St.", "Kent", "OH", "United States", "44240"));
+            });
+
+            await checkout_post1.CaptureSpan("Complete Purchase & Delete product from Basket ", ApiConstants.ActionExec, async () => {
+                await _basketService.DeleteBasketAsync(BasketModel.Id);
+            });
         }
         catch (EmptyBasketOnCheckoutException emptyBasketOnCheckoutException)
         {
-            //Redirect to Empty Basket page
+            checkout_post1.CaptureException(emptyBasketOnCheckoutException);
+
+            checkout_post1.CaptureErrorLog(new ErrorLog(emptyBasketOnCheckoutException.Message));
             _logger.LogWarning(emptyBasketOnCheckoutException.Message);
-            return RedirectToPage("/Basket/Index");
+
+            await checkout_post1.CaptureSpan("Redirect to /Basket/Index", ApiConstants.ActionExec, async () => {
+
+                //checkout_post1.CaptureError("Exception in Checkout : Redirect to /Basket/Index", emptyBasketOnCheckoutException.Message, null);
+                //Redirect to Empty Basket page
+                return RedirectToPage("/Basket/Index");
+            });
         }
 
+
+        //checkout_post1.End();
         return RedirectToPage("Success");
+
+
+        //return 42;
+
+
+
     }
 
     private async Task SetBasketModelAsync()
     {
+        //ITransaction checkout_post1 = Elastic.Apm.Agent.Tracer.CurrentTransaction;
+        //await checkout_post1.CaptureSpan("Set Basket for User ", ApiConstants.ActionQuery, async () => { 
+
         Guard.Against.Null(User?.Identity?.Name, nameof(User.Identity.Name));
         if (_signInManager.IsSignedIn(HttpContext.User))
         {
@@ -79,6 +123,7 @@ public class CheckoutModel : PageModel
             GetOrSetBasketCookieAndUserName();
             BasketModel = await _basketViewModelService.GetOrCreateBasketForUser(_username!);
         }
+        //});
     }
 
     private void GetOrSetBasketCookieAndUserName()

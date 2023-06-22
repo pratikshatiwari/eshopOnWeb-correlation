@@ -14,8 +14,13 @@
     <PackageVersion Include="BlazorInputFile" Version="0.2.0" />
     <PackageVersion Include="Blazored.LocalStorage" Version="4.3.0" />
     <PackageVersion Include="BuildBundlerMinifier" Version="3.2.449" PrivateAssets="All" />
+    <PackageVersion Include="Elastic.Apm" Version="1.20.0" />
+    <PackageVersion Include="Elastic.Apm.AspNetCore" Version="1.20.0" />
+    <PackageVersion Include="Elastic.Apm.EntityFramework6" Version="1.20.0" />
+    <PackageVersion Include="Elastic.Apm.EntityFrameworkCore" Version="1.20.0" />
     <PackageVersion Include="Elastic.Apm.NetCoreAll" Version="1.20.0" />
     <PackageVersion Include="Elastic.Apm.SerilogEnricher" Version="1.5.3" />
+    <PackageVersion Include="Elastic.CommonSchema.Serilog" Version="1.5.3" />
     <PackageVersion Include="FluentValidation" Version="11.4.0" />
     <PackageVersion Include="MediatR" Version="11.1.0" />
     <PackageVersion Include="MediatR.Extensions.Microsoft.DependencyInjection" Version="11.0.0" />
@@ -51,6 +56,7 @@
     <PackageVersion Include="Serilog.Sinks.Console" Version="4.1.0" />
     <PackageVersion Include="Serilog.Sinks.Debug" Version="2.0.0" />
     <PackageVersion Include="Serilog.Sinks.Elasticsearch" Version="9.0.0" />
+    <PackageVersion Include="Serilog.Sinks.File" Version="5.0.0" />
     <PackageVersion Include="System.Net.Http.Json" Version="7.0.0" />
     <PackageVersion Include="System.Reflection" Version="4.3.0" />
     <PackageVersion Include="System.Security.Claims" Version="4.3.0" />
