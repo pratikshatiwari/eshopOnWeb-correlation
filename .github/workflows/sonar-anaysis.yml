@@ -22,6 +22,10 @@ jobs:
           java-version: 17
           distribution: temurin
 
+      - name: Verify Java Version
+        run: java -version
+
+
       - name: Cache SonarQube Files
         uses: actions/cache@v3
         with:
