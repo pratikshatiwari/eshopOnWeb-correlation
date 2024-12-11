@@ -37,7 +37,8 @@ jobs:
           sonar-scanner --version
 
       - name: Run SonarQube Scan
-        run: sonar-scanner
+        run: |
+          sonar-scanner
         env:
           JAVA_HOME: $JAVA_HOME # Explicitly set JAVA_HOME to Java 17
           PATH: $JAVA_HOME/bin:$PATH
