@@ -22,6 +22,7 @@ jobs:
           java-version: 17
           distribution: temurin
 
+            
       - name: Set JAVA_HOME and PATH for Java 17
         run: |
           export JAVA_HOME=$JAVA_HOME
@@ -50,7 +51,10 @@ jobs:
         run: sonar-scanner --version
 
       - name: Run SonarQube Scan
-        run: sonar-scanner
+        run: |
+          export JAVA_HOME=$JAVA_HOME
+          export PATH=$JAVA_HOME/bin:$PATH
+          sonar-scanner
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
           SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
