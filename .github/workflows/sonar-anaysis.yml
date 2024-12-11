@@ -39,11 +39,18 @@ jobs:
           key: ${{ runner.os }}-sonar
           restore-keys: ${{ runner.os }}-sonar
 
-      - name: Run SonarQube Scan
+      - name: Install SonarScanner
         run: |
-          export JAVA_HOME=$JAVA_HOME
-          export PATH=$JAVA_HOME/bin:$PATH
-          sonar-scanner
+          curl -sL https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-4.8.0.2856-linux.zip -o sonar-scanner.zip
+          unzip sonar-scanner.zip
+          mv sonar-scanner-4.8.0.2856-linux sonar-scanner
+          echo "PATH=$PATH:$PWD/sonar-scanner/bin" >> $GITHUB_ENV
+
+      - name: Verify SonarScanner Installation
+        run: sonar-scanner --version
+
+      - name: Run SonarQube Scan
+        run: sonar-scanner
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
           SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
