@@ -36,7 +36,7 @@ jobs:
           sonar-scanner --version
 
       - name: Run SonarQube Scan
-        run: sonar-scanner
+        run: sonar-scanner -X
         env:
           JAVA_HOME: $JAVA_HOME
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
