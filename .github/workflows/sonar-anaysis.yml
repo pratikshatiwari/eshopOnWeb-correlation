@@ -27,20 +27,18 @@ jobs:
           curl -sL https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-4.8.0.2856-linux.zip -o sonar-scanner.zip
           unzip sonar-scanner.zip
           mv sonar-scanner-4.8.0.2856-linux sonar-scanner
-          echo "PATH=$PATH:$PWD/sonar-scanner/bin" >> $GITHUB_ENV
+          echo "SONAR_SCANNER_HOME=$(pwd)/sonar-scanner" >> $GITHUB_ENV
+          echo "PATH=$(pwd)/sonar-scanner/bin:$PATH" >> $GITHUB_ENV
 
-      - name: Verify Java Version for SonarScanner
+      - name: Verify SonarScanner Installation
         run: |
-          echo "Using Java version:"
-          java -version
-          echo "SonarScanner version:"
+          echo "Verifying SonarScanner:"
           sonar-scanner --version
 
       - name: Run SonarQube Scan
-        run: |
-          sonar-scanner
+        run: sonar-scanner
         env:
-          JAVA_HOME: $JAVA_HOME # Explicitly set JAVA_HOME to Java 17
+          JAVA_HOME: $JAVA_HOME
           PATH: $JAVA_HOME/bin:$PATH
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
           SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
