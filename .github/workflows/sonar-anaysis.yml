@@ -22,23 +22,12 @@ jobs:
           java-version: 17
           distribution: temurin
 
-            
-      - name: Set JAVA_HOME and PATH for Java 17
+      - name: Configure Java Environment for SonarScanner
         run: |
           export JAVA_HOME=$JAVA_HOME
           export PATH=$JAVA_HOME/bin:$PATH
           echo "JAVA_HOME=$JAVA_HOME" >> $GITHUB_ENV
           echo "PATH=$PATH" >> $GITHUB_ENV
-
-      - name: Verify Java Version
-        run: java -version
-
-      - name: Cache SonarQube Files
-        uses: actions/cache@v3
-        with:
-          path: ~/.sonar/cache
-          key: ${{ runner.os }}-sonar
-          restore-keys: ${{ runner.os }}-sonar
 
       - name: Install SonarScanner
         run: |
@@ -47,15 +36,14 @@ jobs:
           mv sonar-scanner-4.8.0.2856-linux sonar-scanner
           echo "PATH=$PATH:$PWD/sonar-scanner/bin" >> $GITHUB_ENV
 
-      - name: Verify SonarScanner Installation
-        run: sonar-scanner --version
+      - name: Verify Java Version for SonarScanner
+        run: |
+          echo "Using Java version:"
+          java -version
+          sonar-scanner --version
 
       - name: Run SonarQube Scan
-        run: |
-          export JAVA_HOME=$JAVA_HOME
-          export PATH=$JAVA_HOME/bin:$PATH
-          java -version
-          sonar-scanner
+        run: sonar-scanner
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
           SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
