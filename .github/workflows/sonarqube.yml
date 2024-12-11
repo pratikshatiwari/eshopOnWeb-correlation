@@ -21,6 +21,19 @@ jobs:
         with:
           java-version: 17
           distribution: temurin
+
+      - name: Install SonarScanner
+        run: |
+          curl -sL https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-4.8.0.2856-linux.zip -o sonar-scanner.zip
+          unzip sonar-scanner.zip
+          mv sonar-scanner-4.8.0.2856-linux sonar-scanner
+          echo "SONAR_SCANNER_HOME=$(pwd)/sonar-scanner" >> $GITHUB_ENV
+          echo "PATH=$(pwd)/sonar-scanner/bin:$PATH" >> $GITHUB_ENV
+
+      - name: Verify SonarScanner Installation
+        run: |
+          echo "Verifying SonarScanner:"
+          sonar-scanner --version
           
       - name: Analyze with SonarQube
         uses: SonarSource/sonarqube-scan-action@7295e71c9583053f5bf40e9d4068a0c974603ec8
