@@ -22,8 +22,12 @@ jobs:
           java-version: 17
           distribution: temurin
 
-      - name: Set JAVA_HOME for Java 17
-        run: echo "JAVA_HOME=${{ env.JAVA_HOME }}" >> $GITHUB_ENV
+      - name: Set JAVA_HOME and PATH for Java 17
+        run: |
+          export JAVA_HOME=$JAVA_HOME
+          export PATH=$JAVA_HOME/bin:$PATH
+          echo "JAVA_HOME=$JAVA_HOME" >> $GITHUB_ENV
+          echo "PATH=$PATH" >> $GITHUB_ENV
 
       - name: Verify Java Version
         run: java -version
@@ -35,12 +39,11 @@ jobs:
           key: ${{ runner.os }}-sonar
           restore-keys: ${{ runner.os }}-sonar
 
-      - name: SonarQube Scan
-        uses: SonarSource/sonarqube-scan-action@v1.0.0
+      - name: Run SonarQube Scan
+        run: |
+          export JAVA_HOME=$JAVA_HOME
+          export PATH=$JAVA_HOME/bin:$PATH
+          sonar-scanner
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
           SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
-        with:
-          args: 
-            -X
-            -Dsonar.projectKey=
