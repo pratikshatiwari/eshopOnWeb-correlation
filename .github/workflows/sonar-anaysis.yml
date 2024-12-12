@@ -36,7 +36,7 @@ jobs:
           sonar-scanner --version
 
       - name: Run SonarQube Scan
-        run: sonar-scanner -X
+        run: sonar-scanner
         env:
           JAVA_HOME: $JAVA_HOME
           PATH: $JAVA_HOME/bin:$PATH
