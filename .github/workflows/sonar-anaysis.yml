@@ -16,26 +16,21 @@ jobs:
       - name: Checkout Code
         uses: actions/checkout@v3
 
-      - name: Set up JDK 17
-        uses: actions/setup-java@v3
-        with:
-          java-version: 17
-          distribution: temurin
+      # - name: Set up JDK 17
+      #   uses: actions/setup-java@v3
+      #   with:
+      #     java-version: 17
+      #     distribution: temurin
 
-      - name: Java Path 
-        run: |
-          which java
-            echo $JAVA_HOME
+      # - name: Java Path 
+      #   run: |
+      #     which java
+      #       echo $JAVA_HOME
 
       - name: Show All JAVA
         run: update-alternatives --config java
 
-      - name: Run SonarScanner
-        run: |
-          export JAVA_HOME=/opt/hostedtoolcache/Java_Temurin-Hotspot_jdk/17.0.13-11/x64
-          export PATH=$JAVA_HOME/bin:$PATH
-          sonar-scanner
-          
+
       - name: Install SonarScanner
         run: |
           curl -sL https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-6.0.0.4432-linux.zip -o sonar-scanner.zip
@@ -44,6 +39,12 @@ jobs:
           echo "SONAR_SCANNER_HOME=$(pwd)/sonar-scanner" >> $GITHUB_ENV
           echo "PATH=$(pwd)/sonar-scanner/bin:$PATH" >> $GITHUB_ENV
 
+      - name: Run SonarScanner
+        run: |
+          # export JAVA_HOME=/opt/hostedtoolcache/Java_Temurin-Hotspot_jdk/17.0.13-11/x64
+          # export PATH=$JAVA_HOME/bin:$PATH
+          sonar-scanner
+          
       - name: Verify SonarScanner Installation
         run: |
           echo "Verifying SonarScanner:"
