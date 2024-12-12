@@ -38,26 +38,24 @@ jobs:
           mv sonar-scanner-6.0.0.4432-linux sonar-scanner
           echo "SONAR_SCANNER_HOME=$(pwd)/sonar-scanner" >> $GITHUB_ENV
           echo "PATH=$(pwd)/sonar-scanner/bin:$PATH" >> $GITHUB_ENV
-
       - name: Run SonarScanner
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         run: |
           sonar-scanner \
-            -Dsonar.projectKey=my_project_key \
-            -Dsonar.organization=my_org \
+            -Dsonar.projectKey=pratikshatiwari_Sample-Node.js-Application \
+            -Dsonar.organization=pratikshatiwari \
             -Dsonar.host.url=https://sonarcloud.io \
             -Dsonar.sources=.
           
-      - name: Verify SonarScanner Installation
-        run: |
-          echo "Verifying SonarScanner:"
-          sonar-scanner --version
-
-      - name: Run SonarQube Scan
-        run: sonar-scanner
-        env:
-          JAVA_HOME: $JAVA_HOME
-          PATH: $JAVA_HOME/bin:$PATH
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-          SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
+      # - name: Verify SonarScanner Installation
+      #   run: |
+      #     echo "Verifying SonarScanner:"
+      #     sonar-scanner --version
+      # - name: Run SonarQube Scan
+      #   run: sonar-scanner
+      #   env:
+      #     JAVA_HOME: $JAVA_HOME
+      #     PATH: $JAVA_HOME/bin:$PATH
+      #     SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+      #     SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
