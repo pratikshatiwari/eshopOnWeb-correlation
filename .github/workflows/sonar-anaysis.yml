@@ -40,10 +40,14 @@ jobs:
           echo "PATH=$(pwd)/sonar-scanner/bin:$PATH" >> $GITHUB_ENV
 
       - name: Run SonarScanner
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         run: |
-          # export JAVA_HOME=/opt/hostedtoolcache/Java_Temurin-Hotspot_jdk/17.0.13-11/x64
-          # export PATH=$JAVA_HOME/bin:$PATH
-          sonar-scanner
+          sonar-scanner \
+            -Dsonar.projectKey=my_project_key \
+            -Dsonar.organization=my_org \
+            -Dsonar.host.url=https://sonarcloud.io \
+            -Dsonar.sources=.
           
       - name: Verify SonarScanner Installation
         run: |
