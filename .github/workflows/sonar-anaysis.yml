@@ -48,14 +48,13 @@ jobs:
             -Dsonar.host.url=https://sonarcloud.io \
             -Dsonar.sources=.
           
-      # - name: Verify SonarScanner Installation
-      #   run: |
-      #     echo "Verifying SonarScanner:"
-      #     sonar-scanner --version
-      # - name: Run SonarQube Scan
-      #   run: sonar-scanner
-      #   env:
-      #     JAVA_HOME: $JAVA_HOME
-      #     PATH: $JAVA_HOME/bin:$PATH
-      #     SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-      #     SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
+      - name: Run SonarScanner
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }} # Secure token stored in GitHub Secrets
+        run: |
+          sonar-scanner \
+            -Dsonar.projectKey=pratikshatiwari_Sample-Node.js-Application \
+            -Dsonar.organization=pratikshatiwari \
+            -Dsonar.host.url=https://sonarcloud.io \
+            -Dsonar.sources=. \
+            -Dsonar.login=${{ secrets.SONAR_TOKEN }}
