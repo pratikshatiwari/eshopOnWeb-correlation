@@ -57,7 +57,8 @@ jobs:
         languages: ${{ matrix.language }}
         build-mode: ${{ matrix.build-mode }}
         queries: |
-          ./custom-queries/codesmells.ql
+          +security-and-quality
+
 
           custom-queries
         # If you wish to specify custom queries, you can do so here or in a config file.
