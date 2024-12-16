@@ -58,7 +58,7 @@ jobs:
         build-mode: ${{ matrix.build-mode }}
         queries: |
           +security-and-quality
-          ./custom-queries/codesmells.ql
+          ./custom-queries/
 
 
           
