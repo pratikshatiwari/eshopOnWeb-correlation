@@ -57,7 +57,6 @@ jobs:
         languages: ${{ matrix.language }}
         build-mode: ${{ matrix.build-mode }}
         queries: |
-          +security-and-quality
           ./custom-queries
 
           custom-queries
