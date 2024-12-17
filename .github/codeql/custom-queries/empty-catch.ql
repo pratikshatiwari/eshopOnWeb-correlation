@@ -1,16 +1,13 @@
 import csharp
 
-/** 
- * @name Empty catch block
- * @description Finds empty catch blocks that suppress exceptions silently.
+/**
+ * @name Empty Catch Block
+ * @id cs-empty-catch
+ * @description Finds catch blocks without any statements.
  * @kind path-problem
- * @id cs/empty-catch-block
  * @problem.severity warning
  * @precision high
- * @tags reliability
- *       maintainability
  */
-
-from CatchClause c
-where c.getBody().getStmtCount() = 0
-select c, "This catch block is empty. Consider adding error handling or logging." 
+from CatchClause catch
+where catch.getBody().getStmtCount() = 0
+select catch, "Avoid empty catch blocks. Add logging or appropriate handling."
