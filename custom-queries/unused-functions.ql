@@ -1,14 +1,7 @@
 import csharp
 
-/**
- * @name Unused Methods
- * @description Find private methods that are never called.
- * @kind problem
- * @id cs-unused-methods
- */
-
+/** Find unused methods */
 from Method m
-where
-    m.isPrivate() and
-    not exists(Call call | call.getTarget() = m)
-select m, "Private method '" + m.getName() + "' is never called and might be dead code."
+where not m.isExtern() and
+      not m.isUsed()
+select m, "This method is unused and may be removed to improve maintainability."
