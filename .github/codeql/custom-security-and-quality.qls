@@ -1,6 +1,4 @@
-# Reference built-in security-and-quality queries
-- query: security-and-quality
-
-# Add custom query files
-- query: ./custom-queries/custom-maintainability.ql
-#- query: ./custom-queries/duplicate-code.ql
+queries:
+  - uses: security-and-quality
+  - uses: ./custom-queries/unused-methods.ql
+  - uses: ./custom-queries/codesmells.ql
