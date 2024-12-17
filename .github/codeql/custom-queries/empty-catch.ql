@@ -13,4 +13,4 @@ import csharp
 
 from CatchClause c
 where c.getBody().getStmtCount() = 0
-select c, "This catch block is empty. Consider adding error handling or logging."
+select c, "This catch block is empty. Consider adding error handling or logging." 
