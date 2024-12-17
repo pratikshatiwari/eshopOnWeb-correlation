@@ -1,0 +1,5 @@
+// Reference built-in security-and-quality suite
+- query: security-and-quality
+
+// Add custom query files
+- query: ./custom-queries/unused-methods.ql
