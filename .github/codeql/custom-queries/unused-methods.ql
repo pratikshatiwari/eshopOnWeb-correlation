@@ -1,11 +1,8 @@
 import csharp
+import semmle.code.csharp.dataflow.DataFlow
 
-/**
- * @name Unused Private Methods
- * @description Detect unused private methods in C# code.
- * @kind problem
- * @id cs-unused-private-methods
- */
+/** Find unused methods in the project */
 from Method m
-where m.isPrivate() and not exists(Call call | call.getTarget() = m)
-select m, "Unused private method: " + m.getName()
+where not m.isExtern() and
+      not m.isUsed()
+select m, "This method is unused and may be removed to improve maintainability."
