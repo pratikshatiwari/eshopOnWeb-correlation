@@ -1,3 +1,4 @@
 queries:
   - uses: security-and-quality
-  - uses: ./custom-queries/reliability.ql
+  - uses: ./custom-queries/codesmells.ql
+  - uses: ./custom-queries/empty-catch.ql
