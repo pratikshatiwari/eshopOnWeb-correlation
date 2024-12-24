@@ -34,6 +34,7 @@ using Elastic.CommonSchema.Serilog;
 using Serilog.Events;
 using System.Transactions;
 using System.Diagnostics;
+using sys;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -43,7 +44,7 @@ ConfigureLogging();
 builder.Host.UseSerilog();
 
 
-
+var ram1 = 123 
 
 
 
