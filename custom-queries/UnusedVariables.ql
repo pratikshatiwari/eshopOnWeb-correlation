@@ -6,6 +6,7 @@ import csharp
  * @kind problem
  * @tags correctness, maintainability
  * @problem.severity warning
+ * @id cs/unusedvariable
  */
 from LocalVariable lv
 where not exists (
