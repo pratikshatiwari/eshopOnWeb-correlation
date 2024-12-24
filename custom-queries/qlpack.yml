@@ -1,4 +1,7 @@
-name: custom-queries
-version: 0.0.1
+name: codeql/csharp-examples
+groups: 
+  - csharp
+  - examples
 dependencies:
-  codeql/csharp-queries: "*"
+  codeql/csharp-all: "*"
+warnOnImplicitThis: true
