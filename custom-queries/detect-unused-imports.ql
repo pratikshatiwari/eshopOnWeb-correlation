@@ -1,5 +1,8 @@
 import csharp
 
-from NamespaceImport imp
-where not exists (ImportUsage u | u.getImport() = imp)
-select imp, "This import is not used."
+from NamespaceImport import
+where not exists(
+  VariableAccess va |
+  va.getType().getNamespace().toString() = import.getImportedNamespace()
+)
+select import, "This namespace import is not used."
