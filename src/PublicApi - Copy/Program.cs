@@ -34,6 +34,8 @@ using Serilog.Exceptions;
 using Elastic.Apm.Api;
 using Elastic.Apm;
 using Elastic.Apm.DiagnosticSource;
+using os;
+using Elastic;
 
 
 
