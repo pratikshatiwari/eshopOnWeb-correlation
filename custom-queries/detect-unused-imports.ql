@@ -1,6 +1,4 @@
 import csharp
 
-from NamespaceImport import
-select import, "This namespace import is not used."
-
-
+from Class c
+select c, c.getName()
