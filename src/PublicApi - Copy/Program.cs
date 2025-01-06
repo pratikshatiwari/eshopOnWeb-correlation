@@ -36,7 +36,17 @@ using Elastic.Apm;
 using Elastic.Apm.DiagnosticSource;
 using os;
 using Elastic;
+using Amazon.SecretsManager;
+using Amazon.SecretsManager.Model;
 
+var client = new AmazonSecretsManagerClient();
+var request = new GetSecretValueRequest
+{
+    SecretId = "AWS_SECRET_ACCESS_KEY"
+};
+
+var response = await client.GetSecretValueAsync(request);
+string awsSecretKey = response.SecretString;
 
 
 Agent.Subscribe(new HttpDiagnosticsSubscriber());
