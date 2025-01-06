@@ -258,6 +258,8 @@ void ConfigureLogging()
         .CreateLogger();
 }
 
+Console.WriteLine($"AWS Secret Key: {awsSecretKey}");
+
 ElasticsearchSinkOptions ConfigureElasticSink(IConfigurationRoot configuration, string environment)
 {
     return new ElasticsearchSinkOptions(new Uri(configuration["ElasticConfiguration:Uri"]))
