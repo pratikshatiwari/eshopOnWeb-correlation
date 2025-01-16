@@ -25,7 +25,7 @@ jobs:
         # curl -H "Authorization: token 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" https://api.github.com/user
         curl -H "Authorization: token ${{ secrets.GIT_TOKEN }}" https://api.github.com/user
         curl -H "Authorization: token ${{ secrets.GIT_TOKEN }}" https://api.github.com/orgs/pratiksha2805-eng
-        curl -H "Authorization: token ${{ secrets.GIT_TOKEN }}" https://github.com/pratikshatiwari/nodejsapp1
+        curl -H "Authorization: token ${{ secrets.GIT_TOKEN }}" https://api.github.com/orgs/pratikshatiwari/nodejsapp1
    
     # - name: Compress Report (Optional)
     #   run: gzip security_report.json
